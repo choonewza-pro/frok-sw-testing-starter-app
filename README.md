@@ -70,7 +70,7 @@ npx prisma db push     # สร้างไฟล์ prisma/dev.db พร้อ�
 
 ### 6. ใส่ข้อมูลสินค้าตัวอย่าง (แนะนำ)
 
-ถ้าข้ามขั้นนี้ ฐานข้อมูลจะว่างเปล่าและหน้า `/product` จะไม่มีสินค้าแสดง
+ถ้าข้ามขั้นนี้ ฐานข้อมูลจะว่างเปล่า หน้า `/product` จะไม่มีสินค้าแสดง และส่วน "สินค้าแนะนำ" บนหน้าแรกจะหายไปทั้งบล็อก
 
 ```bash
 sqlite3 prisma/dev.db < docs/insert_data_ecom_example_50_products.sql
@@ -176,7 +176,7 @@ npm run db:seed:orders
 | `src/lib/product/product-params.ts` | แปลงค่าจาก URL และคำนวณจำนวนหน้า |
 | `src/lib/product/product-view-model.ts` | แปลงข้อมูลจาก DB ให้หน้าเว็บใช้ |
 | `src/lib/product/product-url.ts` | ประกอบ URL ของหน้าสินค้า |
-| `src/lib/format.ts` | จัดรูปแบบราคา |
+| `src/lib/format.ts` | จัดรูปแบบราคา สกุลเงินบาท จำนวน และวันที่ภาษาไทย |
 | `src/lib/contact/honeypot.ts` | ตรวจจับบอทจากช่องที่ซ่อนไว้ |
 | `src/lib/contact-schema.ts`, `src/lib/auth-schema.ts` | กฎการตรวจฟอร์ม |
 
@@ -203,6 +203,7 @@ node scripts/setup-test-db.mjs --empty   # สร้างตารางเป�
 **E2E** — element สำคัญมี `data-testid` กำกับไว้แล้ว ให้ใช้ตัวนี้แทนการจับข้อความภาษาไทยซึ่งเปลี่ยนบ่อย
 
 ```
+หน้าแรก    featured-product-list featured-product-card
 หน้าร้าน   product-search-input  product-card     add-to-cart       product-next-page
            cart-row              cart-item-qty    cart-total        cart-checkout
            cart-count            cart-empty       course-card       course-error
@@ -230,7 +231,7 @@ Toast ไม่รองรับ `data-testid` จึงใช้ class แท�
 src/
 ├─ app/
 │  ├─ (auth)/          หน้า login และ signup
-│  ├─ (front)/         หน้าสาธารณะ (หน้าแรก, สินค้า, ตะกร้า, คอร์ส, ติดต่อ)
+│  ├─ (front)/         หน้าสาธารณะ (หน้าแรก, สินค้า, ตะกร้า, คอร์ส, เกี่ยวกับเรา, ติดต่อ)
 │  ├─ admin/           หน้าผู้ดูแลระบบ (แดชบอร์ด, จัดการสินค้า)
 │  ├─ api/admin/       Route Handlers ของหน้าผู้ดูแลระบบ
 │  └─ api/auth/        API ของ Better Auth
@@ -258,8 +259,8 @@ docs/                  ไฟล์ SQL ข้อมูลตัวอย่า�
 **`npm run build` ขึ้น `You are using the default secret`**
 ยังไม่ได้ตั้ง `BETTER_AUTH_SECRET` ในไฟล์ `.env` ย้อนไปทำขั้นตอนที่ 3
 
-**หน้า `/product` ไม่มีสินค้า**
-ยังไม่ได้ใส่ข้อมูลตัวอย่าง ย้อนไปทำขั้นตอนที่ 6
+**หน้า `/product` ไม่มีสินค้า หรือหน้าแรกไม่มีส่วน "สินค้าแนะนำ"**
+ยังไม่ได้ใส่ข้อมูลตัวอย่าง ย้อนไปทำขั้นตอนที่ 6 (หน้าแรกดึงสินค้า 4 ชิ้นแรกจากฐานข้อมูลเดียวกัน)
 
 **พอร์ต 3000 ถูกใช้งานอยู่**
 รันด้วยพอร์ตอื่น เช่น `npm run dev -- -p 3100` แล้วแก้ `BETTER_AUTH_URL` ใน `.env` ให้ตรงกัน
