@@ -36,7 +36,7 @@ export default function Hero() {
           ช้อปสินค้าคุณภาพ พร้อมเรียนรู้ไปด้วยกัน
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg text-muted-foreground md:text-xl/relaxed">
-          ระบบ E-Commerce COSCI รวมร้านค้าออนไลน์และหลักสูตรพัฒนาเว็บไว้ในที่เดียว
+          ระบบ E-Commerce CodingThailand รวมร้านค้าออนไลน์และหลักสูตรพัฒนาเว็บไว้ในที่เดียว
           เลือกซื้อสินค้าที่ชอบ หรือเริ่มต้นเรียนรู้การสร้างเว็บแอปพลิเคชันได้ทันที
         </p>
 

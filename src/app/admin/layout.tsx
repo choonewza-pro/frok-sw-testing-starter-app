@@ -19,7 +19,7 @@ const promptFont = Prompt({
 });
 
 export const metadata: Metadata = {
-  title: "ผู้ดูแลระบบ | COSCI",
+  title: "ผู้ดูแลระบบ | CodingThailand",
   description: "จัดการสินค้าและดูภาพรวมของร้าน",
 };
 

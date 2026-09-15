@@ -12,7 +12,7 @@ const contactInfo = [
     value: "123 ถนนตัวอย่าง แขวงบางรัก เขตบางรัก กรุงเทพมหานคร 10500",
   },
   { icon: Phone, label: "โทรศัพท์", value: "02-123-4567" },
-  { icon: Mail, label: "อีเมล", value: "contact@cosci.com" },
+  { icon: Mail, label: "อีเมล", value: "contact@codingthailand.com" },
   { icon: Clock, label: "เวลาทำการ", value: "จันทร์ - ศุกร์ 09:00 - 18:00 น." },
 ];
 
@@ -37,7 +37,7 @@ const faqs = [
   },
   {
     question: "ติดต่อสอบถามหลักสูตรได้ที่ช่องทางไหน?",
-    answer: "สามารถสอบถามหลักสูตรได้ทางฟอร์มด้านขวาหรืออีเมล contact@cosci.com",
+    answer: "สามารถสอบถามหลักสูตรได้ทางฟอร์มด้านขวาหรืออีเมล contact@codingthailand.com",
   },
 ];
 

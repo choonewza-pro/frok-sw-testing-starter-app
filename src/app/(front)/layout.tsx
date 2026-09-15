@@ -23,7 +23,7 @@ export const promptFont = Prompt({
 
 
 export const metadata: Metadata = {
-  title: "ระบบ E-Commerce COSCI",
+  title: "ระบบ E-Commerce CodingThailand",
   description: "เรียนรู้การเขียน Nex.tjs",
 };
 

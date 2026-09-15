@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 export default function AppFooter() {
-  const [company, setCompany] = useState('COSCI'); 
+  const [company, setCompany] = useState('CodingThailand'); 
 
   const currentDate = <div>{ new Date().toLocaleDateString()}</div>;
 
