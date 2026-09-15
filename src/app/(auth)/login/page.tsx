@@ -2,8 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
-import * as z from "zod"
-
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -21,21 +19,9 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { authClient } from "@/lib/auth-client"
+import { loginSchema, type LoginFormValues } from "@/lib/auth-schema"
 import { useRouter } from "next/navigation"
 import { toast } from "react-toastify"
-
-const loginSchema = z.object({
-  email: z
-    .string()
-    .min(1, "กรุณากรอกอีเมล")
-    .pipe(z.email("รูปแบบอีเมลไม่ถูกต้อง")),
-  password: z
-    .string()
-    .min(1, "กรุณากรอกรหัสผ่าน")
-    .min(8, "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร"),
-})
-
-type LoginFormValues = z.infer<typeof loginSchema>
 
 export default function LoginForm() {
   const router = useRouter();
@@ -72,7 +58,7 @@ export default function LoginForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form id="form-login" onSubmit={form.handleSubmit(onSubmit)}>
+        <form id="form-login" data-testid="login-form" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
             <Controller
               name="email"
@@ -83,6 +69,7 @@ export default function LoginForm() {
                   <Input
                     {...field}
                     id="form-login-email"
+                    data-testid="login-email"
                     type="email"
                     aria-invalid={fieldState.invalid}
                     placeholder="you@example.com"
@@ -105,6 +92,7 @@ export default function LoginForm() {
                   <Input
                     {...field}
                     id="form-login-password"
+                    data-testid="login-password"
                     type="password"
                     aria-invalid={fieldState.invalid}
                     placeholder="••••••••"
@@ -120,7 +108,7 @@ export default function LoginForm() {
         </form>
       </CardContent>
       <CardFooter className="flex flex-col gap-3">
-        <Button type="submit" form="form-login" className="w-full">
+        <Button type="submit" form="form-login" data-testid="login-submit" className="w-full">
           เข้าสู่ระบบ
         </Button>
         <p className="text-center text-sm text-muted-foreground">

@@ -107,9 +107,10 @@ npm run dev
 | ตรวจ lint | `npm run lint` |
 | สร้าง Prisma Client ใหม่ | `npx prisma generate` |
 | อัปเดตโครงสร้างฐานข้อมูล | `npx prisma db push` |
+| สร้างฐานข้อมูลสำหรับทดสอบ | `npm run db:test:setup` |
 | เปิดดู/แก้ข้อมูลผ่าน GUI | `npx prisma studio` |
 
-> โปรเจกต์นี้ยังไม่มีการตั้งค่า test framework
+> โปรเจกต์นี้ยังไม่มีการตั้งค่า test framework แต่โครงสร้างโค้ดเตรียมไว้ให้เขียนเทสต์ได้แล้ว (ดูหัวข้อถัดไป)
 
 ---
 
@@ -123,10 +124,62 @@ npm run dev
 | `RESEND_API_KEY` | ❌ | ใช้เฉพาะให้ฟอร์มติดต่อส่งอีเมลได้จริง |
 | `CONTACT_FROM_EMAIL` | ❌ | อีเมลผู้ส่งของฟอร์มติดต่อ |
 | `CONTACT_TO_EMAIL` | ❌ | อีเมลผู้รับของฟอร์มติดต่อ |
+| `COURSE_API_URL` | ❌ | ชี้ API หลักสูตรไปที่อื่น ใช้ตอนรัน e2e ถ้าไม่ตั้งจะใช้ API จริง |
 
 ถ้าไม่ตั้งค่า 3 ตัวล่าง ฟอร์มติดต่อจะยังใช้งานได้ตามปกติ แต่ตอนกดส่งจะขึ้นข้อความว่ายังไม่ได้ตั้งค่าการส่งอีเมล
 
 > ไฟล์ `.env` ไม่ถูกเก็บลง Git (อยู่ใน `.gitignore`) อย่า commit ขึ้น repository
+
+---
+
+## การเตรียมโค้ดสำหรับเขียนเทสต์
+
+โปรเจกต์นี้แยกโค้ดออกเป็นชั้น ๆ เพื่อให้ทดสอบได้ทีละส่วน โดยยังไม่ได้ติดตั้ง test framework
+
+**ฟังก์ชันล้วน (unit test ได้ทันที ไม่ต้องตั้งค่าอะไร)**
+
+| ไฟล์ | หน้าที่ |
+|------|---------|
+| `src/lib/cart/cart-logic.ts` | เพิ่ม/ลบ/แก้จำนวนสินค้า และคิดยอดรวม |
+| `src/lib/product/product-params.ts` | แปลงค่าจาก URL และคำนวณจำนวนหน้า |
+| `src/lib/product/product-view-model.ts` | แปลงข้อมูลจาก DB ให้หน้าเว็บใช้ |
+| `src/lib/product/product-url.ts` | ประกอบ URL ของหน้าสินค้า |
+| `src/lib/format.ts` | จัดรูปแบบราคา |
+| `src/lib/contact/honeypot.ts` | ตรวจจับบอทจากช่องที่ซ่อนไว้ |
+| `src/lib/contact-schema.ts`, `src/lib/auth-schema.ts` | กฎการตรวจฟอร์ม |
+
+**จุดที่ฉีด dependency เข้าไปแทนของจริงได้** — ทุกตัวมีค่า default อยู่แล้ว โค้ดที่เรียกใช้ไม่ต้องแก้
+
+| สิ่งที่แทนได้ | วิธี |
+|---------------|------|
+| ฐานข้อมูล | `findProductPage(prismaClient, query)` — ส่ง client ที่ชี้ไป `prisma/test.db` |
+| การตรวจไฟล์รูป | `toProductViewModel(row, imageExists)` — ส่งฟังก์ชันปลอมแทนการอ่านดิสก์ |
+| API หลักสูตร | `fetchCourses({ fetchImpl })` หรือตั้ง `COURSE_API_URL` |
+| การส่งอีเมล | `handleContactSubmission(input, { createSender })` |
+| ค่า env | `getContactEmailConfig(env)`, `resolveCourseApiUrl(env)` |
+| ตะกร้าสินค้า | `createCartStore({ storage: null })` — ได้ store ใหม่ที่ไม่แตะ localStorage |
+
+**ฐานข้อมูลสำหรับทดสอบ**
+
+```bash
+npm run db:test:setup             # สร้าง prisma/test.db พร้อมข้อมูลตัวอย่าง 50 รายการ
+node scripts/setup-test-db.mjs --empty   # สร้างตารางเปล่า ไม่ใส่ข้อมูล
+```
+
+รันแล้วจะได้ไฟล์แยกจาก `prisma/dev.db` ทำให้เทสต์ที่เพิ่ม/ลบข้อมูลไม่ทำให้ข้อมูลที่ใช้พัฒนาพัง
+
+**E2E** — element สำคัญมี `data-testid` กำกับไว้แล้ว ให้ใช้ตัวนี้แทนการจับข้อความภาษาไทยซึ่งเปลี่ยนบ่อย
+
+```
+product-search-input   product-card       add-to-cart        product-next-page
+cart-row               cart-item-qty      cart-total         cart-checkout
+cart-count             cart-empty         course-card        course-error
+login-email            login-password     login-submit       logout-button
+signup-name            signup-email       signup-submit      nav-user-name
+contact-name           contact-message    contact-submit     contact-success
+```
+
+หน้า `/course` ดึงข้อมูลจาก API ภายนอกจริง ถ้าไม่อยากให้เทสต์ขึ้นกับอินเทอร์เน็ต ให้ตั้ง `COURSE_API_URL` ชี้ไป mock server หรือดักที่ระดับ network ในเครื่องมือ e2e โดยใช้ข้อมูลจาก `docs/fixtures/courses.json`
 
 ---
 
@@ -139,11 +192,14 @@ src/
 │  ├─ (front)/         หน้าสาธารณะ (หน้าแรก, สินค้า, ตะกร้า, คอร์ส, ติดต่อ)
 │  └─ api/auth/        API ของ Better Auth
 ├─ components/         คอมโพเนนต์ที่ใช้ร่วมกัน + shadcn/ui
-└─ lib/                prisma, auth, cart store, zod schema
+├─ lib/                logic ทั้งหมด แยกเป็น cart/ product/ course/ contact/
+└─ types/              ชนิดข้อมูลของโดเมน (cart, product, course)
 prisma/
 ├─ schema.prisma       โครงสร้างฐานข้อมูล
-└─ dev.db              ไฟล์ฐานข้อมูล SQLite (ไม่ถูกเก็บลง Git)
-docs/                  ไฟล์ SQL ข้อมูลตัวอย่าง
+├─ dev.db              ไฟล์ฐานข้อมูลตอนพัฒนา (ไม่ถูกเก็บลง Git)
+└─ test.db             ไฟล์ฐานข้อมูลสำหรับเทสต์ (ไม่ถูกเก็บลง Git)
+scripts/               สคริปต์ช่วยงาน เช่น สร้างฐานข้อมูลทดสอบ
+docs/                  ไฟล์ SQL ข้อมูลตัวอย่าง และ fixtures/ สำหรับ mock API
 ```
 
 ---

@@ -106,7 +106,12 @@ export default function ContactForm() {
         กรอกข้อมูลด้านล่างแล้วเราจะติดต่อกลับภายใน 1-2 วันทำการ
       </p>
 
-      <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="mt-6">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        noValidate
+        data-testid="contact-form"
+        className="mt-6"
+      >
         <FieldGroup>
           {inputFields.map(({ name, label, type, placeholder, autoComplete }) => (
             <Controller
@@ -119,6 +124,7 @@ export default function ContactForm() {
                   <Input
                     {...field}
                     id={`contact-${name}`}
+                    data-testid={`contact-${name}`}
                     type={type}
                     autoComplete={autoComplete}
                     aria-invalid={fieldState.invalid}
@@ -138,6 +144,7 @@ export default function ContactForm() {
                 <Textarea
                   {...field}
                   id="contact-message"
+                  data-testid="contact-message"
                   aria-invalid={fieldState.invalid}
                   placeholder="รายละเอียดข้อความของคุณ..."
                 />
@@ -163,6 +170,7 @@ export default function ContactForm() {
           {status === "success" && (
             <p
               role="status"
+              data-testid="contact-success"
               className="rounded-xl border border-emerald-600/30 bg-emerald-600/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-400"
             >
               {message}
@@ -172,6 +180,7 @@ export default function ContactForm() {
           {status === "error" && (
             <p
               role="alert"
+              data-testid="contact-error"
               className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
             >
               {message}
@@ -180,6 +189,7 @@ export default function ContactForm() {
 
           <Button
             type="submit"
+            data-testid="contact-submit"
             disabled={status === "pending"}
             className="w-full sm:w-auto"
           >

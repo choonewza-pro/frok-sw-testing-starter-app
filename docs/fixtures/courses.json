@@ -1,0 +1,28 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "HTML 5",
+      "detail": "พัฒนาเว็บไซต์ด้วย HTML 5",
+      "date": "2014-10-12",
+      "view": 47889,
+      "picture": "https://api.codingthailand.com/storage/images/course/1.png"
+    },
+    {
+      "id": 2,
+      "title": "CSS 3",
+      "detail": "พัฒนาและตกแต่งเว็บไซต์ด้วย CSS",
+      "date": "2014-10-14",
+      "view": 24236,
+      "picture": "https://api.codingthailand.com/storage/images/course/2.png"
+    },
+    {
+      "id": 3,
+      "title": "PHP Basic",
+      "detail": "เขียนโปรแกรมด้วยภาษา PHP พื้นฐาน",
+      "date": "2014-10-12",
+      "view": 39231,
+      "picture": "https://api.codingthailand.com/storage/images/course/3.png"
+    }
+  ]
+}

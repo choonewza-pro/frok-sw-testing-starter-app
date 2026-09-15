@@ -1,63 +1,26 @@
 "use server"
 
-import { contactSchema } from "@/lib/contact-schema"
+import { getContactEmailConfig } from "@/lib/contact/contact-config"
+import {
+  handleContactSubmission,
+  type ContactActionResult,
+  type ContactSubmission,
+} from "@/lib/contact/contact-service"
+import { createResendEmailSender } from "@/lib/contact/email-sender"
 
-export type ContactActionResult = {
-  ok: boolean
-  fieldErrors?: Record<string, string[]>
-  message?: string
-}
+export type { ContactActionResult }
 
-export async function submitContactForm(input: {
-  name: string
-  email: string
-  subject: string
-  message: string
-  website?: string
-}): Promise<ContactActionResult> {
-  if (input.website?.trim() !== "") {
-    return { ok: true }
-  }
-
-  const parsed = contactSchema.safeParse(input)
-
-  if (!parsed.success) {
-    return { ok: false, fieldErrors: parsed.error.flatten().fieldErrors }
-  }
-
-  const { name, email, subject, message } = parsed.data
-
-  const apiKey = process.env.RESEND_API_KEY
-  const fromEmail = process.env.CONTACT_FROM_EMAIL
-  const toEmail = process.env.CONTACT_TO_EMAIL
-  if (!apiKey || !fromEmail || !toEmail) {
-    return { ok: false, message: "ระบบยังไม่ได้ตั้งค่าการส่งอีเมล กรุณาติดต่อทีมงาน" }
-  }
-
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
+/**
+ * Server Action เหลือหน้าที่แค่ประกอบ dependency ของจริงแล้วส่งต่อ
+ * logic ทั้งหมดอยู่ใน handleContactSubmission ซึ่งทดสอบได้โดยไม่ต้องมี Next.js runtime
+ */
+export async function submitContactForm(
+  input: ContactSubmission
+): Promise<ContactActionResult> {
+  return handleContactSubmission(input, {
+    createSender: () => {
+      const config = getContactEmailConfig()
+      return config ? createResendEmailSender(config) : null
     },
-    body: JSON.stringify({
-      from: fromEmail,
-      to: [toEmail],
-      replyTo: email,
-      subject: `[ติดต่อเว็บไซต์] ${subject}`,
-      text: `ชื่อ: ${name}\nอีเมล: ${email}\nหัวข้อ: ${subject}\n\n${message}`,
-    }),
-    cache: "no-store",
-    signal: AbortSignal.timeout(10_000),
   })
-
-  if (!res.ok) {
-    console.error(`Contact email failed: ${res.status} ${res.statusText}`)
-    return {
-      ok: false,
-      message: "ไม่สามารถส่งข้อความได้ในขณะนี้ กรุณาลองใหม่ภายหลัง",
-    }
-  }
-
-  return { ok: true }
 }

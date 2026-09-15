@@ -18,7 +18,7 @@ export default function LogoutButton() {
   }
   
   return (
-    <Button onClick={handleLogout}>
+    <Button onClick={handleLogout} data-testid="logout-button">
       ออกจากระบบ
     </Button>
   );

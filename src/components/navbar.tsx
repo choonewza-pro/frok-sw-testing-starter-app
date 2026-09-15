@@ -23,7 +23,7 @@ const Navbar = async () => {
         {/* Desktop Menu */}
         <NavMenu className="hidden md:block" />
 
-        <Link href="/cart">
+        <Link href="/cart" data-testid="nav-cart">
           <Badge className="p-2 text-md">
             <ShoppingBasket /> <CountCartItem /> ชิ้น
           </Badge>
@@ -35,10 +35,10 @@ const Navbar = async () => {
             !session && (
               <>
                 <Button asChild className="hidden sm:inline-flex" variant="outline">
-                  <Link href="/login">เข้าสู่ระบบ</Link>
+                  <Link href="/login" data-testid="nav-login">เข้าสู่ระบบ</Link>
                 </Button>
                 <Button asChild>
-                  <Link href="/signup">สมัครสมาชิก</Link>
+                  <Link href="/signup" data-testid="nav-signup">สมัครสมาชิก</Link>
                 </Button>
               </>
             )
@@ -47,7 +47,7 @@ const Navbar = async () => {
           {
             session && (
               <>
-                <div className="flex items-center mr-4">
+                <div className="flex items-center mr-4" data-testid="nav-user-name">
                   สวัสดี, {session.user.name}
                 </div>
                 <div>

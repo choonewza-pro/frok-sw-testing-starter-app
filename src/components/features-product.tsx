@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import CartButton from "@/app/(front)/components/CartButton";
@@ -8,6 +7,9 @@ import { useState } from "react";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { formatPrice } from "@/lib/format";
+import { buildProductUrl } from "@/lib/product/product-url";
+import type { ProductListResult } from "@/types/product";
 
 const PRODUCT_PLACEHOLDER_SRC = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
   `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="750" viewBox="0 0 600 750">
@@ -27,34 +29,21 @@ const PRODUCT_PLACEHOLDER_SRC = `data:image/svg+xml;charset=utf-8,${encodeURICom
 )}`;
 
 type Props = {
-  products: any[]
-  q: string
-  page: number
-  total: number
-  pageSize: number
+  result: ProductListResult
 }
 
-const FeaturesProduct = ({ products, q, page, total, pageSize }: Props) => {
+const FeaturesProduct = ({ result }: Props) => {
+  const { products, q, page, total, totalPages } = result;
   const router = useRouter();
   const [search, setSearch] = useState(q);
 
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-
-  const buildUrl = (nextQ: string, nextPage: number) => {
-    const params = new URLSearchParams();
-    if (nextQ) params.set("q", nextQ);
-    if (nextPage > 1) params.set("page", String(nextPage));
-    const qs = params.toString();
-    return qs ? `/product?${qs}` : "/product";
-  };
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    router.push(buildUrl(search.trim(), 1));
+    router.push(buildProductUrl(search, 1));
   };
 
-  const goToPage = (p: number) => {
-    router.push(buildUrl(q, p));
+  const goToPage = (nextPage: number) => {
+    router.push(buildProductUrl(q, nextPage));
   };
 
   return (
@@ -63,30 +52,42 @@ const FeaturesProduct = ({ products, q, page, total, pageSize }: Props) => {
         สินค้าทั้งหมด
       </h2>
 
-      <form onSubmit={handleSearch} className="mx-auto mt-8 flex w-full max-w-md gap-2">
+      <form
+        onSubmit={handleSearch}
+        data-testid="product-search-form"
+        className="mx-auto mt-8 flex w-full max-w-md gap-2"
+      >
         <Input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="ค้นหาด้วยชื่อสินค้า..."
+          data-testid="product-search-input"
         />
-        <Button type="submit" className="shrink-0 shadow-none">
+        <Button type="submit" className="shrink-0 shadow-none" data-testid="product-search-submit">
           <Search className="size-4" /> ค้นหา
         </Button>
       </form>
 
       {products.length === 0 ? (
-        <p className="mt-16 text-center text-foreground/70">
+        <p className="mt-16 text-center text-foreground/70" data-testid="product-empty">
           ไม่พบสินค้าที่ค้นหา
         </p>
       ) : (
         <>
-          <div className="mt-16 grid grid-cols-1 gap-6 sm:mt-20 sm:grid-cols-2 lg:grid-cols-3">
+          <div
+            data-testid="product-list"
+            className="mt-16 grid grid-cols-1 gap-6 sm:mt-20 sm:grid-cols-2 lg:grid-cols-3"
+          >
             {products.map((product) => (
-              <div className="rounded-xl border bg-card px-6 py-7" key={product.id}>
-
+              <div
+                className="rounded-xl border bg-card px-6 py-7"
+                data-testid="product-card"
+                data-product-id={product.id}
+                key={product.id}
+              >
                 <div className="relative mb-5 aspect-4/5 w-full overflow-hidden rounded-xl sm:mb-6">
-                  {product.picture && product.hasImage ? (
+                  {product.picture ? (
                     <Image
                       alt={product.name}
                       className="size-full bg-muted object-cover"
@@ -113,14 +114,17 @@ const FeaturesProduct = ({ products, q, page, total, pageSize }: Props) => {
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/5 text-primary dark:bg-primary/15">
                   ID: {product.id}
                 </div>
-                <h3 className="mt-5 font-medium text-lg tracking-[-0.005em]">
+                <h3
+                  className="mt-5 font-medium text-lg tracking-[-0.005em]"
+                  data-testid="product-name"
+                >
                   Name: {product.name}
                 </h3>
-                <p className="mt-2 text-base text-foreground/70">
-                  Price: {product.price.toString()}
+                <p className="mt-2 text-base text-foreground/70" data-testid="product-price">
+                  Price: {formatPrice(product.price)}
                 </p>
                 <div className="mt-2">
-                    <CartButton product={product} />
+                  <CartButton product={product} />
                 </div>
               </div>
             ))}
@@ -131,13 +135,14 @@ const FeaturesProduct = ({ products, q, page, total, pageSize }: Props) => {
               variant="outline"
               size="icon"
               className="shadow-none"
+              data-testid="product-prev-page"
               disabled={page <= 1}
               onClick={() => goToPage(page - 1)}
             >
               <ChevronLeft className="size-4" />
             </Button>
 
-            <span className="text-sm text-foreground/70">
+            <span className="text-sm text-foreground/70" data-testid="product-pagination-status">
               หน้า {page} จาก {totalPages} ({total} รายการ)
             </span>
 
@@ -145,6 +150,7 @@ const FeaturesProduct = ({ products, q, page, total, pageSize }: Props) => {
               variant="outline"
               size="icon"
               className="shadow-none"
+              data-testid="product-next-page"
               disabled={page >= totalPages}
               onClick={() => goToPage(page + 1)}
             >
