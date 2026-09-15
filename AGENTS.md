@@ -50,7 +50,9 @@ Always run `npx prisma generate` after schema changes. The `generated/prisma/` d
 
 - `src/app/(auth)/` — login and signup pages
 - `src/app/(front)/` — public-facing pages (home, products, cart, courses, etc.)
+- `src/app/admin/` — admin dashboard and product management (role-gated, own layout)
 - `src/app/api/auth/[...all]/` — Better Auth API catch-all
+- `src/app/api/admin/` — admin Route Handlers (stats, revenue, orders, products, categories)
 
 ## Key Conventions
 

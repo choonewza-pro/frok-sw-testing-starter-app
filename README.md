@@ -108,6 +108,7 @@ npm run dev
 | สร้าง Prisma Client ใหม่ | `npx prisma generate` |
 | อัปเดตโครงสร้างฐานข้อมูล | `npx prisma db push` |
 | สร้างฐานข้อมูลสำหรับทดสอบ | `npm run db:test:setup` |
+| ใส่คำสั่งซื้อย้อนหลัง 90 วัน | `npm run db:seed:orders` |
 | เปิดดู/แก้ข้อมูลผ่าน GUI | `npx prisma studio` |
 
 > โปรเจกต์นี้ยังไม่มีการตั้งค่า test framework แต่โครงสร้างโค้ดเตรียมไว้ให้เขียนเทสต์ได้แล้ว (ดูหัวข้อถัดไป)
@@ -129,6 +130,37 @@ npm run dev
 ถ้าไม่ตั้งค่า 3 ตัวล่าง ฟอร์มติดต่อจะยังใช้งานได้ตามปกติ แต่ตอนกดส่งจะขึ้นข้อความว่ายังไม่ได้ตั้งค่าการส่งอีเมล
 
 > ไฟล์ `.env` ไม่ถูกเก็บลง Git (อยู่ใน `.gitignore`) อย่า commit ขึ้น repository
+
+---
+
+## หน้าผู้ดูแลระบบ (Admin)
+
+เข้าที่ `/admin` — มีแดชบอร์ดสรุปยอดขายและหน้าจัดการสินค้าแบบ CRUD
+
+**ต้องตั้งตัวเองเป็นแอดมินก่อน** ระบบไม่มีปุ่มให้เลื่อนขั้นตัวเอง (กันไม่ให้ใครก็สมัครแล้วเป็นแอดมินได้) ต้องแก้ในฐานข้อมูลโดยตรง:
+
+```bash
+sqlite3 prisma/dev.db "UPDATE user SET role='admin' WHERE email='อีเมลของคุณ';"
+```
+
+> เครื่องที่ไม่มี `sqlite3` ใช้ `npx prisma studio` แล้วแก้ช่อง `role` ในตาราง `user` เป็น `admin`
+
+จากนั้นออกจากระบบแล้วเข้าใหม่ เพื่อให้ session อ่านค่า role ใหม่
+
+**ใส่ข้อมูลให้กราฟมีอะไรดู** ข้อมูลตัวอย่างชุดหลักมีคำสั่งซื้อไม่กี่รายการและเป็นวันที่ตายตัว พอเวลาผ่านไปจะหลุดออกนอกช่วง 7/30/90 วัน ทำให้กราฟว่าง รันคำสั่งนี้เพื่อสร้างคำสั่งซื้อย้อนหลังโดยอิงวันที่ปัจจุบัน:
+
+```bash
+npm run db:seed:orders
+```
+
+**สิ่งที่ทำได้ในหน้า Admin**
+
+| หน้า | ทำอะไรได้ |
+|------|-----------|
+| `/admin` | ดูยอดขายรวม จำนวนคำสั่งซื้อ สินค้า ลูกค้า, กราฟยอดขายเลือกช่วง 7/30/90 วัน, คำสั่งซื้อล่าสุด (รีเฟรชเองทุก 30 วินาที) |
+| `/admin/products` | ค้นหา แบ่งหน้า เพิ่ม แก้ไข และลบสินค้า |
+
+> สินค้าที่มีคนสั่งซื้อไปแล้วจะลบไม่ได้ ระบบจะขึ้นข้อความอธิบายแทนที่จะพัง
 
 ---
 
@@ -171,13 +203,22 @@ node scripts/setup-test-db.mjs --empty   # สร้างตารางเป�
 **E2E** — element สำคัญมี `data-testid` กำกับไว้แล้ว ให้ใช้ตัวนี้แทนการจับข้อความภาษาไทยซึ่งเปลี่ยนบ่อย
 
 ```
-product-search-input   product-card       add-to-cart        product-next-page
-cart-row               cart-item-qty      cart-total         cart-checkout
-cart-count             cart-empty         course-card        course-error
-login-email            login-password     login-submit       logout-button
-signup-name            signup-email       signup-submit      nav-user-name
-contact-name           contact-message    contact-submit     contact-success
+หน้าร้าน   product-search-input  product-card     add-to-cart       product-next-page
+           cart-row              cart-item-qty    cart-total        cart-checkout
+           cart-count            cart-empty       course-card       course-error
+เข้าระบบ   login-email           login-password   login-submit      logout-button
+           signup-name           signup-email     signup-submit     nav-user-name
+ติดต่อ     contact-name          contact-message  contact-submit    contact-success
+แดชบอร์ด   kpi-revenue-value     period-7d        revenue-total     recent-order-row
+           stats-loading         stats-error      stats-retry       revenue-empty
+จัดการสินค้า product-search       product-row      product-create    product-edit
+           product-delete        product-form     product-form-submit
+           delete-dialog         delete-confirm   delete-cancel     product-pagination
 ```
+
+ทุก section ของหน้า Admin ใช้รูปแบบเดียวกัน: `<ชื่อ>-loading`, `<ชื่อ>-error`, `<ชื่อ>-retry` เช่น `stats-error` กับ `stats-retry`
+
+Toast ไม่รองรับ `data-testid` จึงใช้ class แทน — `.admin-toast-success` และ `.admin-toast-error`
 
 หน้า `/course` ดึงข้อมูลจาก API ภายนอกจริง ถ้าไม่อยากให้เทสต์ขึ้นกับอินเทอร์เน็ต ให้ตั้ง `COURSE_API_URL` ชี้ไป mock server หรือดักที่ระดับ network ในเครื่องมือ e2e โดยใช้ข้อมูลจาก `docs/fixtures/courses.json`
 
@@ -190,10 +231,12 @@ src/
 ├─ app/
 │  ├─ (auth)/          หน้า login และ signup
 │  ├─ (front)/         หน้าสาธารณะ (หน้าแรก, สินค้า, ตะกร้า, คอร์ส, ติดต่อ)
+│  ├─ admin/           หน้าผู้ดูแลระบบ (แดชบอร์ด, จัดการสินค้า)
+│  ├─ api/admin/       Route Handlers ของหน้าผู้ดูแลระบบ
 │  └─ api/auth/        API ของ Better Auth
 ├─ components/         คอมโพเนนต์ที่ใช้ร่วมกัน + shadcn/ui
-├─ lib/                logic ทั้งหมด แยกเป็น cart/ product/ course/ contact/
-└─ types/              ชนิดข้อมูลของโดเมน (cart, product, course)
+├─ lib/                logic ทั้งหมด แยกเป็น cart/ product/ course/ contact/ admin/
+└─ types/              ชนิดข้อมูลของโดเมน (cart, product, course, admin)
 prisma/
 ├─ schema.prisma       โครงสร้างฐานข้อมูล
 ├─ dev.db              ไฟล์ฐานข้อมูลตอนพัฒนา (ไม่ถูกเก็บลง Git)
