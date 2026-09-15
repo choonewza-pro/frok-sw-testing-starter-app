@@ -11,9 +11,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Setup
 
 ```bash
-cp .env.example .env        # fill in DATABASE_URL password
+cp .env.example .env        # DATABASE_URL already points at file:./prisma/dev.db
 npm install
 npx prisma generate         # generates to generated/prisma/ (gitignored)
+npx prisma db push          # creates prisma/dev.db
 npm run dev
 ```
 
@@ -29,8 +30,8 @@ No test framework is configured. No CI workflows exist.
 
 ## Architecture
 
-- **Framework**: Next.js 16.3.1 + React 19 (App Router)
-- **Database**: MariaDB via Prisma (`@prisma/adapter-mariadb`, not the MySQL adapter)
+- **Framework**: Next.js 16.3.5 + React 19 (App Router)
+- **Database**: SQLite via Prisma 7 (`@prisma/adapter-better-sqlite3`); file at `prisma/dev.db`
 - **Auth**: Better Auth with email/password (`src/lib/auth.ts`, `src/lib/auth-client.ts`)
 - **UI**: shadcn (radix-rhea style, lucide icons) + Tailwind CSS v4
 - **State**: Zustand (`src/lib/cart-store.ts`)

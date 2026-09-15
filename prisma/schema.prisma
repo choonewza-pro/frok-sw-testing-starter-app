@@ -4,16 +4,16 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "sqlite"
 }
 
 model User {
   id            String    @id
-  name          String    @db.Text
+  name          String
   email         String    @unique
   emailVerified Boolean   @default(false)
-  role          String    @default("user") @db.VarChar(20)
-  image         String?   @db.Text
+  role          String    @default("user")
+  image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   accounts      Account[]
@@ -28,8 +28,8 @@ model Session {
   token     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  ipAddress String?  @db.Text
-  userAgent String?  @db.Text
+  ipAddress String?
+  userAgent String?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -39,19 +39,18 @@ model Session {
 
 model Account {
   id                    String    @id
-  accountId             String    @db.Text
-  providerId            String    @db.Text
+  accountId             String
+  providerId            String
   userId                String
-  accessToken           String?   @db.Text
-  refreshToken          String?   @db.Text
-  idToken               String?   @db.Text
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
-  scope                 String?   @db.Text
-  password              String?   @db.Text
+  scope                 String?
+  password              String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
-  issuer                String    @db.Text
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -60,80 +59,74 @@ model Account {
 
 model Verification {
   id         String   @id
-  identifier String   @db.Text
-  value      String   @db.Text
+  identifier String
+  value      String
   expiresAt  DateTime
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  @@index([identifier(length: 191)])
+  @@index([identifier])
   @@map("verification")
 }
 
 model categories {
-  id       Int        @id @unique(map: "id") @default(autoincrement())
-  name     String?    @db.VarChar(255)
+  id       Int        @id @default(autoincrement())
+  name     String?
   products products[]
 }
 
 model customers {
-  id      Int      @id @unique(map: "id") @default(autoincrement())
-  name    String?  @db.VarChar(255)
-  address String?  @db.VarChar(500)
-  phone   String?  @db.VarChar(20)
+  id      Int      @id @default(autoincrement())
+  name    String?
+  address String?
+  phone   String?
   orders  orders[]
 }
 
 model order_items {
-  id         Int      @id @unique(map: "id") @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   order_id   Int
   product_id Int
   quantity   Int
   price      Float
-  orders     orders   @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "order_items_ibfk_1")
-  products   products @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "order_items_ibfk_2")
+  orders     orders   @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  products   products @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@index([order_id], map: "order_id")
-  @@index([product_id], map: "product_id")
+  @@index([order_id])
+  @@index([product_id])
 }
 
 model orders {
-  id           Int            @id @unique(map: "id") @default(autoincrement())
-  date         DateTime?      @db.DateTime(0)
+  id           Int           @id @default(autoincrement())
+  date         DateTime?
   customer_id  Int?
-  status       orders_status?
+  status       String?
   total_amount Float?
   order_items  order_items[]
-  customers    customers?     @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "orders_ibfk_1")
+  customers    customers?    @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@index([customer_id], map: "customer_id")
+  @@index([customer_id])
 }
 
 model product_images {
-  id         Int       @id @unique(map: "id") @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   product_id Int
-  image_name String    @db.Text
-  created_at DateTime? @default(now()) @db.Timestamp(0)
-  products   products  @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "product_images_ibfk_1")
+  image_name String
+  created_at DateTime? @default(now())
+  products   products  @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@index([product_id], map: "product_id")
+  @@index([product_id])
 }
 
 model products {
-  id             Int              @id @unique(map: "id") @default(autoincrement())
-  name           String?          @db.VarChar(255)
-  description    String?          @db.Text
+  id             Int              @id @default(autoincrement())
+  name           String?
+  description    String?
   price          Float?
   category_id    Int?
   order_items    order_items[]
   product_images product_images[]
-  categories     categories?      @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "products_ibfk_1")
+  categories     categories?      @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@index([category_id], map: "category_id")
-}
-
-enum orders_status {
-  delivered
-  received
-  processing
+  @@index([category_id])
 }
