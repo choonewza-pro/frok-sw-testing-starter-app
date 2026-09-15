@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { Prompt, Roboto, Lora } from "next/font/google";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/navbar";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "../globals.css";
 
 // TODO: Cache Components adoption. Refactor this route so this opt-out can be removed.
@@ -40,6 +42,7 @@ export default function RootLayout({
           <Navbar />
         </Suspense>
         {children}
+        <ToastContainer position="top-right" autoClose={3000} theme="colored" />
       </body>
     </html>
   );

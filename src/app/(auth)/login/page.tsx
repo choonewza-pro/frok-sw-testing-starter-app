@@ -22,12 +22,13 @@ import {
 import { Input } from "@/components/ui/input"
 import { authClient } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
+import { toast } from "react-toastify"
 
 const loginSchema = z.object({
   email: z
     .string()
     .min(1, "กรุณากรอกอีเมล")
-    .email("รูปแบบอีเมลไม่ถูกต้อง"),
+    .pipe(z.email("รูปแบบอีเมลไม่ถูกต้อง")),
   password: z
     .string()
     .min(1, "กรุณากรอกรหัสผ่าน")
@@ -52,11 +53,11 @@ export default function LoginForm() {
           password: data.password,
          }, {
             onSuccess: () => {
-              alert('เข้าระบบสำเร็จ');
-              router.replace('/');
+              toast.success('เข้าระบบสำเร็จ');
+              setTimeout(() => router.replace('/'), 1200);
             },
             onError: (ctx) => {
-              alert(JSON.stringify(ctx.error));
+              toast.error(ctx.error.message ?? JSON.stringify(ctx.error));
             }
          });
   }

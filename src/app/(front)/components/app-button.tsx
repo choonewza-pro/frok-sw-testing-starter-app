@@ -1,8 +1,10 @@
 'use client'
 
+import { toast } from "react-toastify";
+
 export default function AppButton() {
   
-  const handleClickMe = () => alert('Hello Next.js');  
+  const handleClickMe = () => toast('Hello Next.js');  
 
   return (
     <button onClick={handleClickMe} >

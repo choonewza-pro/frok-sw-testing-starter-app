@@ -10,7 +10,7 @@ export const contactSchema = z.object({
     .string()
     .trim()
     .min(1, "กรุณากรอกอีเมล")
-    .email("รูปแบบอีเมลไม่ถูกต้อง"),
+    .pipe(z.email("รูปแบบอีเมลไม่ถูกต้อง")),
   subject: z
     .string()
     .trim()
