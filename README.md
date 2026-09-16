@@ -90,7 +90,7 @@ sqlite3 prisma/dev.db < docs/insert_data_ecom_example_50_products.sql
 npm run dev
 ```
 
-เปิด [http://localhost:3000](http://localhost:3000) ในเบราว์เซอร์
+เปิด [http://localhost:3030](http://localhost:3030) ในเบราว์เซอร์
 
 ลองสมัครสมาชิกที่ `/signup` แล้วเข้าสู่ระบบที่ `/login` และดูรายการสินค้าที่ `/product`
 
@@ -121,7 +121,7 @@ npm run dev
 |--------|--------|----------|
 | `DATABASE_URL` | ✅ | ตำแหน่งไฟล์ SQLite ตั้งค่ามาให้แล้วเป็น `file:./prisma/dev.db` |
 | `BETTER_AUTH_SECRET` | ✅ | กุญแจเข้ารหัส session ต้องสุ่มเอง (ดูขั้นตอนที่ 3) |
-| `BETTER_AUTH_URL` | ✅ | URL ของเว็บ ตอนพัฒนาคือ `http://localhost:3000` |
+| `BETTER_AUTH_URL` | ✅ | URL ของเว็บ ตอนพัฒนาคือ `http://localhost:3030` |
 | `RESEND_API_KEY` | ❌ | ใช้เฉพาะให้ฟอร์มติดต่อส่งอีเมลได้จริง |
 | `CONTACT_FROM_EMAIL` | ❌ | อีเมลผู้ส่งของฟอร์มติดต่อ |
 | `CONTACT_TO_EMAIL` | ❌ | อีเมลผู้รับของฟอร์มติดต่อ |

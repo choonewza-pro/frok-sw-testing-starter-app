@@ -22,14 +22,19 @@ const SEED_SQL = join(root, "docs", "insert_data_ecom_example_50_products.sql")
 
 const withData = !process.argv.includes("--empty")
 
+// บน Windows ต้องเรียก npx.cmd เพราะไฟล์ npx ตรงๆ ไม่ใช่ executable ที่ spawn ได้
+const NPX = process.platform === "win32" ? "npx.cmd" : "npx"
+
 for (const suffix of ["", "-journal", "-wal", "-shm"]) {
   const file = `${TEST_DB_PATH}${suffix}`
   if (existsSync(file)) rmSync(file)
 }
 console.log("ลบฐานข้อมูลทดสอบเดิมแล้ว")
 
-execFileSync("npx", ["prisma", "db", "push", "--url", TEST_DATABASE_URL], {
+execFileSync(NPX, ["prisma", "db", "push", "--url", TEST_DATABASE_URL], {
   stdio: "inherit",
+  // Windows spawn ไฟล์ .cmd ตรงๆ ไม่ได้ (EINVAL) ต้องผ่าน shell
+  shell: process.platform === "win32",
 })
 console.log(`สร้างตารางที่ ${TEST_DB_PATH} เรียบร้อย`)
 

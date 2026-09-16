@@ -1,0 +1,143 @@
+# Test Naming Conventions
+
+Good test names communicate business rules — not implementation details.
+
+---
+
+## Format
+
+```
+should <expected behavior> when <condition/scenario>
+```
+
+The test name must answer: **"What does the system do in this situation?"**
+
+---
+
+## Rules
+
+### 1. Use Business Language
+
+```typescript
+// ✅ Good — reads like a business rule
+it('should reject checkout when cart is empty')
+it('should apply 20% discount for VIP users')
+it('should lock account after 5 failed login attempts')
+it('should send confirmation email when order is placed')
+
+// ❌ Bad — describes implementation
+it('test case 1')
+it('should work')
+it('should call service.process')
+it('should return true')
+it('handles the thing')
+```
+
+### 2. Include the Condition
+
+```typescript
+// ✅ Good — condition is explicit
+it('should throw InvalidPriceError when price is negative')
+it('should return empty array when no products match filter')
+it('should cap discount at 50% when role + coupon exceeds limit')
+
+// ❌ Bad — condition is missing
+it('should throw error')      // which error? when?
+it('should return results')   // what results? under what condition?
+```
+
+### 3. Be Specific About Expected Behavior
+
+```typescript
+// ✅ Good — specific outcome
+it('should set order status to "pending" when payment is processing')
+it('should return finalPrice of 800 when VIP buys 1000 item')
+
+// ❌ Bad — vague outcome
+it('should handle payment')   // handle how?
+it('should process order')    // process to what state?
+```
+
+---
+
+## Describe Block Naming
+
+Group tests by **behavior area**, not by method name:
+
+```typescript
+// ✅ Good — grouped by behavior
+describe('calculateDiscount', () => {
+  describe('price validation', () => { ... })
+  describe('role-based discount', () => { ... })
+  describe('coupon handling', () => { ... })
+  describe('discount cap', () => { ... })
+})
+
+// ❌ Bad — flat list with no grouping
+describe('calculateDiscount', () => {
+  it('test 1', () => { ... })
+  it('test 2', () => { ... })
+  it('test 3', () => { ... })
+  // 20 tests with no structure...
+})
+```
+
+---
+
+## Naming for it.each
+
+Use template literals for dynamic names:
+
+```typescript
+// ✅ Good — descriptive with values
+it.each([
+  { role: 'vip', expected: 0.20 },
+  { role: 'member', expected: 0.10 },
+  { role: 'guest', expected: 0.00 },
+])('should return $expected discount rate for $role user', ({ role, expected }) => {
+  ...
+})
+
+// Output:
+// ✓ should return 0.2 discount rate for vip user
+// ✓ should return 0.1 discount rate for member user
+// ✓ should return 0 discount rate for guest user
+```
+
+```typescript
+// ❌ Bad — generic label
+it.each(testCases)('case %#', (input) => { ... })
+// Output: "case 0", "case 1", "case 2" — meaningless
+```
+
+---
+
+## Error Test Naming
+
+For tests that verify errors, name the error type:
+
+```typescript
+// ✅ Good — names the specific error
+it('should throw InvalidPriceError when price is negative')
+it('should throw NotFoundError when user does not exist')
+it('should throw PaymentTimeoutError when gateway times out')
+
+// ❌ Bad — generic
+it('should throw an error')
+it('should fail')
+```
+
+---
+
+## Quick Reference
+
+| Pattern | Example |
+|---------|---------|
+| Happy path | `should create order when all inputs are valid` |
+| Negative validation | `should throw EmptyCartError when items array is empty` |
+| Boundary | `should accept age 18 (exactly minimum)` |
+| Edge case | `should handle null input gracefully` |
+| Error from dep | `should throw ServiceError when database connection fails` |
+| Security | `should reject request when user has no role` |
+| State change | `should set status to "locked" after 5 failed attempts` |
+| Side effect | `should send email notification when order is confirmed` |

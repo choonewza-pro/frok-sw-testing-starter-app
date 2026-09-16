@@ -3,6 +3,14 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "./prisma";
 
 export const auth = betterAuth({
+    trustedOrigins: [
+        "http://localhost:3030",
+        "http://127.0.0.1:3030",
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+    ],
     database: prismaAdapter(prisma, {
         provider: "sqlite",
     }),

@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "skills": {
+    "new-git-commit-guide": {
+      "source": "choonewza-pro/agent-skills-choonewza",
+      "sourceType": "github",
+      "skillPath": "skills/new-git-commit-guide/SKILL.md",
+      "computedHash": "3414a52699b09f6af92ba382520cf3e27d1e35b7c6d5c5a7549fdc2b2f068ba4"
+    },
+    "new-prevent-encoding-mojibake": {
+      "source": "choonewza-pro/agent-skills-choonewza",
+      "sourceType": "github",
+      "skillPath": "skills/new-prevent-encoding-mojibake/SKILL.md",
+      "computedHash": "00f1e8fabb545582f7936bec0508a65904e98868014daec7c5f823534b1a9d21"
+    },
+    "new-typescript-guidelines": {
+      "source": "choonewza-pro/agent-skills-choonewza",
+      "sourceType": "github",
+      "skillPath": "skills/new-typescript-guidelines/SKILL.md",
+      "computedHash": "e3133e099b7dea12cb1c60d58085d2527c42c0c72b090fbe43d04ffcae325dae"
+    },
+    "swe-debug-mantra": {
+      "source": "choonewza-pro/agent-skills-choonewza",
+      "sourceType": "github",
+      "skillPath": "skills/swe-debug-mantra/SKILL.md",
+      "computedHash": "3a206af81a6600a8bfabe27945f5042929e24c65de6dcf0866f0a0c0f35baeee"
+    },
+    "swe-management-talk": {
+      "source": "choonewza-pro/agent-skills-choonewza",
+      "sourceType": "github",
+      "skillPath": "skills/swe-management-talk/SKILL.md",
+      "computedHash": "dc34cdac65b99ae110bfc127673ac95238b067138ecee4aa58dec5db29439b71"
+    },
+    "swe-post-mortem": {
+      "source": "choonewza-pro/agent-skills-choonewza",
+      "sourceType": "github",
+      "skillPath": "skills/swe-post-mortem/SKILL.md",
+      "computedHash": "e03245db8c8c9ea7f467aae73b0aed162fefb4e3f3297c8a8fc8fc966a79c116"
+    },
+    "swe-review-architecture-project": {
+      "source": "choonewza-pro/agent-skills-choonewza",
+      "sourceType": "github",
+      "skillPath": "skills/swe-review-architecture-project/SKILL.md",
+      "computedHash": "b53eeb16519b7deacf981eb1b9ba67165242a7eda41faa7a76a65a843c55f423"
+    },
+    "swe-scrutinize": {
+      "source": "choonewza-pro/agent-skills-choonewza",
+      "sourceType": "github",
+      "skillPath": "skills/swe-scrutinize/SKILL.md",
+      "computedHash": "40a4bc935f73e541870d5df03e462ca1777ac71336d1f08a80583ecbbafcdb8c"
+    },
+    "swe-test-engineer": {
+      "source": "choonewza-pro/agent-skills-choonewza",
+      "sourceType": "github",
+      "skillPath": "skills/swe-test-engineer/SKILL.md",
+      "computedHash": "e399c086d1b74519674e253791a5a9c0735d0cd22e06366b44ddc2bd49a6cc48"
+    },
+    "swe-test-planner": {
+      "source": "choonewza-pro/agent-skills-choonewza",
+      "sourceType": "github",
+      "skillPath": "skills/swe-test-planner/SKILL.md",
+      "computedHash": "de5395c77fafefb55a0ab54116b388723dfdc428f9fd5dc1806f40248303897d"
+    },
+    "swe-test-unit-test-writer": {
+      "source": "choonewza-pro/agent-skills-choonewza",
+      "sourceType": "github",
+      "skillPath": "skills/swe-test-unit-test-writer/SKILL.md",
+      "computedHash": "4c8c48ed1f9f87d0a6b5c820f60844a083898e67a998191651ee397bc3ed0a6f"
+    }
+  }
+}
