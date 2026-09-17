@@ -49,6 +49,12 @@
       "skillPath": "skills/swe-scrutinize/SKILL.md",
       "computedHash": "40a4bc935f73e541870d5df03e462ca1777ac71336d1f08a80583ecbbafcdb8c"
     },
+    "swe-test-e2e-playwright": {
+      "source": "choonewza-pro/agent-skills-choonewza",
+      "sourceType": "github",
+      "skillPath": "skills/swe-test-e2e-playwright/SKILL.md",
+      "computedHash": "35ae02e134f6e84f5b6e9133c505549925277de776e05a556c4e1d9fe4ca61d0"
+    },
     "swe-test-engineer": {
       "source": "choonewza-pro/agent-skills-choonewza",
       "sourceType": "github",
