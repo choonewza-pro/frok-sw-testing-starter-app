@@ -18,6 +18,26 @@ const createItem = (overrides?: Partial<CartItem>): CartItem => ({
   ...overrides,
 })
 
+// BVA ของ lineTotal = price * qty (vary ทีละตัว อีกตัว fix เป็น nominal)
+// C1-qty: valid >= 1 (ดู addItem/updateQty ที่กัน qty <= 0) -> ขอบล่างคือ 0|1 : เทส 0, 1, 2
+// C2-price: valid > 0 ตาม productSchema.positive (0 กับติดลบคือ invalid) -> ขอบล่างคือ 0|1 : เทส -1, 0, 1
+// เคสติดลบด้านล่างคือ robust BVA: จงใจส่ง invalid เข้าไป
+// spec ที่ถูกคือปัดเป็น 0 (lineTotal มี guard กัน qty/price <= 0 แล้ว)
+describe("lineTotal", () => {
+  it.for([
+    { qty: 0, price: 100, expected: 0 }, // Q min-1 (invalid)
+    { qty: 1, price: 100, expected: 100 }, // Q min (valid)
+    { qty: 2, price: 100, expected: 200 }, // Q min+1 (valid)
+    { qty: 1, price: 0, expected: 0 }, // P min (invalid, ของฟรีไม่มีใน spec จริง)
+    { qty: 1, price: 1, expected: 1 }, // P min+1 (valid เล็กสุด)
+    { qty: -1, price: 100, expected: 0 }, // robust: qty ติดลบ
+    { qty: 1, price: -1, expected: 0 }, // robust: price ติดลบ
+  ])("คำนวณ $qty x $price = $expected", ({ qty, price, expected }) => {
+    const product = createItem({ qty, price })
+    expect(lineTotal(product)).toBe(expected)
+  })
+})
+
 describe("addItem", () => {
   it("should add a new item to an empty cart", () => {
     // Arrange

@@ -41,10 +41,12 @@ export function totalItems(items: CartItem[]): number {
 
 /** ราคารวมทุกรายการ */
 export function totalPrice(items: CartItem[]): number {
-  return items.reduce((sum, item) => sum + item.qty * item.price, 0)
+  return items.reduce((sum, item) => sum + lineTotal(item), 0)
 }
 
 /** ราคารวมของรายการเดียว */
 export function lineTotal(item: CartItem): number {
+  if (item.qty <= 0) return 0
+  if (item.price <= 0) return 0
   return item.price * item.qty
 }
