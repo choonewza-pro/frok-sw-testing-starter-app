@@ -85,6 +85,10 @@ Before writing any test, internalize these rules. See [references/anti-patterns.
   _Litmus Test:_ ถ้า refactor โค้ดภายในแล้ว behavior เหมือนเดิม Test ต้องยังผ่านเสมอ (ถ้า fail แปลว่า test implementation detail)
 - ❌ **Do not bundle multiple behaviors in one test** — follow One Behavior Per Test. Avoid the "And Smell" in test names (e.g., `formats price and handles errors and logs result` ❌)
 - ❌ **Do not mock everything** — over-mocking means you're testing the mocks, not the code
+- ❌ **Do not omit `await` before async assertions** — `expect(fn()).rejects` without `await` causes floating promises and silent false positives
+- ❌ **Do not use weak assertions or brittle whole-object matches** — avoid `.toBeTruthy()` on objects, use `.toMatchObject()` or `expect.objectContaining()` instead of fragile `.toEqual()` on dynamic fields
+- ❌ **Do not assert exact error message strings** — test Custom Error classes or error codes, not brittle wording
+- ❌ **Do not leak global state or `process.env`** — always restore in `afterEach`
 - ❌ **Do not use generic or implementation-focused test names** — "test case 1", "works correctly", "calls Intl" are forbidden
 - ❌ **Do not copy-paste tests that differ only by data** — use `it.each` / `test.each` with representative boundary values
 - ❌ **Do not write tests that depend on execution order** — each test must be independent
@@ -242,7 +246,9 @@ describe('calculateDiscount', () => {
 2. **Descriptive names for CI diagnostics** — prefer active verbs (`returns formatted price for USD`, `throws if currency is invalid`) so failures in CI are immediately clear. Respect existing project conventions if `should ... when ...` is already dominant.
 3. **Use representative boundary values** — do not test infinite variations. Select representative values for valid, boundary, and error paths (see `parseAge` in [references/case-types.md](references/case-types.md)).
 4. **Mock only external dependencies** — do NOT mock the function under test or internal helper variables.
-5. **Always clean up mocks** in `beforeEach` or `afterEach`.
+5. **Always clean up mocks & environment** in `beforeEach` or `afterEach` (including `process.env`).
+6. **Always `await` async assertions** — use `await expect(promise).rejects.toThrow(CustomError)` to avoid floating promises.
+7. **Use resilient matchers** — prefer `.toMatchObject()` or `expect.objectContaining()` for dynamic entities (dates, IDs), and assert Error Classes/Codes rather than fragile message strings.
 
 ---
 
@@ -266,8 +272,8 @@ See [references/first-principles.md](references/first-principles.md).
 
 - [ ] **Fast** — no real API calls, no database, no file system, no `setTimeout`
 - [ ] **Independent** — can run any test in isolation, no shared mutable state
-- [ ] **Repeatable** — no dependency on system clock, network, or environment
-- [ ] **Self-Validating** — every test has clear `expect()` assertions
+- [ ] **Repeatable** — no dependency on system clock, network, or un-reset `process.env`
+- [ ] **Self-Validating** — clear, precise `expect()` assertions (no weak `toBeTruthy()` on objects, no dummy coverage)
 - [ ] **Timely** — tests are written alongside the production code
 
 **Coverage Check:**
@@ -283,6 +289,10 @@ See [references/first-principles.md](references/first-principles.md).
 - [ ] No test asserts on internal implementation details or intermediate variables
 - [ ] Refactor Check passed: If implementation changes without altering behavior, test still passes
 - [ ] No test has more than one Act phase or suffers from "And Smell"
+- [ ] All async rejection tests have `await expect(...).rejects` (no floating promises)
+- [ ] Error assertions check Custom Error Classes or Error Codes, not fragile message strings
+- [ ] Dynamic objects use `.toMatchObject()` or `expect.objectContaining()` instead of brittle full `.toEqual()`
+- [ ] Any `process.env` mutations are restored in `afterEach`
 - [ ] Test names clearly identify the failing behavior for CI logs
 - [ ] No copy-pasted tests that should be `it.each`
 

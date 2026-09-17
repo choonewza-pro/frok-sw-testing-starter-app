@@ -64,10 +64,11 @@ it('test B depends on A', () => {
 
 ### R — Repeatable
 
-Tests must produce the **same result** every time, on every machine.
+Tests must produce the **same result** every time, on every machine, in any execution order.
 
 - ✅ Mock `Date.now()`, random values, environment variables
-- ❌ Depend on current time, network availability, OS locale
+- ✅ Always restore modified `process.env` in `afterEach`
+- ❌ Depend on current time, network availability, OS locale, or un-reset env state
 
 ```typescript
 // ✅ Good — deterministic time
@@ -81,28 +82,55 @@ vi.useRealTimers()
 ```
 
 ```typescript
-// ❌ Bad — depends on actual system time
+// ✅ Good — isolated process.env
+const originalEnv = process.env
+
+beforeEach(() => {
+  process.env = { ...originalEnv }
+})
+
+afterEach(() => {
+  process.env = originalEnv
+})
+```
+
+```typescript
+// ❌ Bad — depends on actual system time or leaks env mutation
 const result = getGreeting() // returns different things at 8am vs 8pm
 expect(result).toBe('Good morning') // flaky!
 ```
 
 ### S — Self-Validating
 
-Tests must have **explicit assertions** that produce pass/fail — no manual inspection.
+Tests must have **explicit, precise assertions** that produce a clear pass/fail — no manual inspection and no false confidence.
 
-- ✅ `expect(result).toBe(expected)`
-- ❌ `console.log(result)` then human reads output
+- ✅ Precise assertions: `expect(user.role).toBe('admin')`
+- ✅ Resilient object matching: `expect(result).toMatchObject({ status: 'active' })`
+- ✅ Awaited async assertions: `await expect(fetchData()).rejects.toThrow(ApiError)`
+- ❌ Weak assertions: `expect(result).toBeDefined()` (passes even if data is totally wrong)
+- ❌ Floating promises: `expect(fetchData()).rejects.toThrow()` (missing `await` → silent pass!)
+- ❌ Logging without assertion: `console.log('User status:', user.isActive)`
 
 ```typescript
-// ✅ Good — clear assertion
-expect(user.isActive).toBe(true)
+// ❌ Bad — weak assertions (gives false confidence)
+expect(result).toBeDefined()
+expect(result).toBeTruthy()
 
-// ❌ Bad — no assertion, just logging
-console.log('User status:', user.isActive) // passes even if wrong!
+// ❌ Bad — floating promise (never awaits, always passes!)
+expect(fetchUserData('invalid')).rejects.toThrow()
+
+// ✅ Good — precise and awaited
+await expect(fetchUserData('invalid')).rejects.toThrow(UserNotFoundError)
+expect(user).toMatchObject({
+  id: 'u1',
+  role: 'admin',
+})
 ```
 
-Every test MUST have at least one `expect()` call. Tests with zero assertions are worse
-than no tests because they give false confidence.
+> 💡 **The Coverage Illusion (Coverage ≠ Confidence):**
+> Code Coverage 100% ไม่ได้หมายความว่าระบบไม่มีบั๊ก! หากเขียน Test ที่รันผ่านบรรทัดโค้ดแต่ไม่มี Assertion หรือ Assertion หละหลวม (Dummy / Assertion-free test) จะทำให้ได้ตัวเลข Coverage สวยงามแต่ไม่มีคุณค่าในการดักจับ Bug ใน Production
+
+Every test MUST have at least one meaningful `expect()` call.
 
 ### T — Timely
 
@@ -120,9 +148,10 @@ When an agent writes code, it should write the test in the same session, not def
 Run through this before considering tests complete:
 
 ```
-□ Fast      — No real I/O, no network, no sleep/timeout
-□ Isolated  — beforeEach clears all mocks, no shared mutable state
-□ Repeatable — Time, random, and env are mocked where used
-□ Self-Valid — Every it() block has at least one expect()
-□ Timely    — Tests exist for all new/changed production code
+□ Fast        — No real I/O, no network, no sleep/timeout
+□ Isolated    — beforeEach clears all mocks, process.env restored in afterEach
+□ Repeatable  — Time, random, and env are mocked and deterministic
+□ Self-Valid  — Precise assertions (no weak toBeTruthy(), no un-awaited rejects, no dummy coverage)
+□ Resilient   — Uses toMatchObject/objectContaining for dynamic fields, checks Error Class/Code
+□ Timely      — Tests exist for all new/changed production code
 ```

@@ -113,6 +113,32 @@ it('should throw ParseError when external API returns malformed JSON', async () 
 
 **Coverage goal:** At least one error case per external dependency (DB, API, queue, etc.).
 
+### Error Assertion Best Practices: Type/Code over String Message
+
+> ⚠️ **กฎเหล็กของ Error Assertions:**
+> 1. **ตรวจ Error Type หรือ Error Code เป็นหลัก:** หลีกเลี่ยงการตรวจ Error Message แบบข้อความตรงตัว (`toThrow('User was not found')`) เพราะเมื่อคำพูดเปลี่ยนหรือแปลภาษา Test จะพังทันที ให้ตรวจด้วย Class เช่น `.toThrow(NotFoundError)` หรือตรวจ Property เช่น `.rejects.toMatchObject({ code: 'ERR_USER_NOT_FOUND' })`
+> 2. **ห้ามลืม `await` เด็ดขาด (Floating Promise):** การเขียน `expect(asyncFn()).rejects...` โดยไม่มี `await` นำหน้าจะทำให้ Promise ไม่ถูกรอ และกลายเป็น False Positive (Test ผ่านทั้งที่ข้างในพัง หรือลอยไป fail ข้ามไฟล์ใน CI)
+
+```typescript
+// ❌ Fragile — ผูกติดกับ wording และอาจลืม await
+it('fails on expired token', () => {
+  expect(verifyToken('expired')).rejects.toThrow('Token has expired since yesterday!')
+})
+
+// ✅ Robust — ตรวจ Custom Error Class และมี await เสมอ
+it('rejects with TokenExpiredError when token is past expiry', async () => {
+  await expect(verifyToken('expired')).rejects.toThrow(TokenExpiredError)
+})
+
+// ✅ Robust — ตรวจ Error Code หรือ Structured Properties
+it('rejects with structured error payload', async () => {
+  await expect(verifyToken('expired')).rejects.toMatchObject({
+    name: 'TokenExpiredError',
+    code: 'AUTH_TOKEN_EXPIRED',
+  })
+})
+```
+
 ---
 
 ## 4. Boundary Case

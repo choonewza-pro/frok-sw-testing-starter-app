@@ -191,6 +191,36 @@ afterEach(() => {
 
 ---
 
+## Environment Variables (`process.env`)
+
+Mutating `process.env` without restoring it can leak state to other test files. Always snapshot and restore:
+
+```typescript
+describe('loadConfig', () => {
+  const originalEnv = process.env
+
+  beforeEach(() => {
+    // Clone env before each test
+    process.env = { ...originalEnv }
+  })
+
+  afterEach(() => {
+    // Restore pristine env
+    process.env = originalEnv
+  })
+
+  it('should enable feature flag in production', () => {
+    process.env.NODE_ENV = 'production'
+    process.env.FEATURE_NEW_CHECKOUT = 'true'
+
+    const config = loadConfig()
+    expect(config.isNewCheckoutEnabled).toBe(true)
+  })
+})
+```
+
+---
+
 ## Dependency Injection Pattern
 
 The cleanest way to mock: inject dependencies instead of importing them.

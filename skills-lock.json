@@ -55,6 +55,12 @@
       "skillPath": "skills/swe-test-engineer/SKILL.md",
       "computedHash": "e399c086d1b74519674e253791a5a9c0735d0cd22e06366b44ddc2bd49a6cc48"
     },
+    "swe-test-integration-test-writer": {
+      "source": "choonewza-pro/agent-skills-choonewza",
+      "sourceType": "github",
+      "skillPath": "skills/swe-test-integration-test-writer/SKILL.md",
+      "computedHash": "32f75dea19a40c29b11b63fe354bbd0e2162b0d5c96bb64fa8c6bec6cff7ca2c"
+    },
     "swe-test-planner": {
       "source": "choonewza-pro/agent-skills-choonewza",
       "sourceType": "github",
@@ -65,7 +71,7 @@
       "source": "choonewza-pro/agent-skills-choonewza",
       "sourceType": "github",
       "skillPath": "skills/swe-test-unit-test-writer/SKILL.md",
-      "computedHash": "f524617a382454be69409a810183428bad093c006958c2b302f97bc583d135be"
+      "computedHash": "c3ee0e40ace702a09e894a8ef08100f4cff3b96495800fd2133ed752d5a62dae"
     }
   }
 }

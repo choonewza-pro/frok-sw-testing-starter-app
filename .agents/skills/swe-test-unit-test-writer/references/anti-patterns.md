@@ -277,6 +277,127 @@ describe('createOrder', () => {
 
 ---
 
+## 9. Missing `await` on Async Assertions (Floating Promise / Silent Pass)
+
+**Problem:** Forgetting `await` before an async assertion (`expect().rejects...`) causes the assertion promise to be ignored. The test finishes before assertion executes, resulting in a **False Positive (Silent Pass)** or unhandled rejection errors in CI.
+
+```typescript
+// ❌ Anti-pattern — missing await before expect().rejects
+it('should throw error on invalid input', () => {
+  // This test passes even if createOrder never throws, or throws a completely different error!
+  expect(createOrder(invalidItems)).rejects.toThrow(InvalidInputError)
+})
+
+// ✅ Better — always await async assertions
+it('should throw error on invalid input', async () => {
+  await expect(createOrder(invalidItems)).rejects.toThrow(InvalidInputError)
+})
+```
+
+**Rule of thumb:** If the function under test returns a Promise, any assertion on `.rejects` or `.resolves` MUST have `await expect(...)`.
+
+---
+
+## 10. Weak Assertions & Brittle Over-Asserting
+
+**Problem:**
+- **Weak Assertions:** Asserting only existence (`.toBeDefined()`, `.toBeTruthy()`) gives a false sense of security. The object might exist but contain completely corrupt data.
+- **Brittle Over-Asserting:** Asserting entire objects with `.toEqual()` when objects contain auto-generated timestamps, random UUIDs, or unrelated metadata causes tests to break whenever non-critical fields change.
+
+```typescript
+// ❌ Anti-pattern A (Too weak) — passes even if payload is wrong
+it('should return user profile', async () => {
+  const profile = await getUserProfile('u1')
+  expect(profile).toBeDefined()
+  expect(profile.data).toBeTruthy()
+})
+
+// ❌ Anti-pattern B (Too brittle) — breaks whenever createdAt or id format changes
+it('should create user', async () => {
+  const user = await createUser({ name: 'Alice' })
+  expect(user).toEqual({
+    id: 'uuid-1234',
+    name: 'Alice',
+    createdAt: new Date('2026-01-01'),
+    updatedAt: new Date('2026-01-01'),
+    version: 1,
+  })
+})
+
+// ✅ Better — assert critical behavior and contract with partial matchers
+it('should create user with valid profile', async () => {
+  const user = await createUser({ name: 'Alice' })
+  expect(user).toMatchObject({
+    name: 'Alice',
+    isActive: true,
+  })
+  expect(user.id).toEqual(expect.any(String))
+})
+```
+
+---
+
+## 11. Testing Exact Error Message Strings (Fragile Error Matching)
+
+**Problem:** Asserting on exact string messages (`toThrow('User email is already registered in our system')`) makes tests fragile. Minor copy tweaks, localization, or punctuation edits break the test suite even though business logic is unchanged.
+
+```typescript
+// ❌ Anti-pattern — coupled to exact phrasing
+it('should reject duplicate email', async () => {
+  await expect(registerUser({ email: 'existing@test.com' }))
+    .rejects.toThrow('User email is already registered in our system.')
+})
+
+// ✅ Better — assert by Custom Error Class or Error Code
+it('should reject duplicate email with DuplicateUserError', async () => {
+  await expect(registerUser({ email: 'existing@test.com' }))
+    .rejects.toThrow(DuplicateUserError)
+})
+
+// ✅ Better — assert error code or structured properties
+it('should return DUPLICATE_EMAIL error code', async () => {
+  await expect(registerUser({ email: 'existing@test.com' }))
+    .rejects.toMatchObject({
+      code: 'ERR_DUPLICATE_EMAIL',
+    })
+})
+```
+
+---
+
+## 12. Polluting Global State & `process.env` without Cleanup
+
+**Problem:** Mutating `process.env` or global objects inside a test without restoring original values leaks state into subsequent tests, creating unpredictable and flaky test runs.
+
+```typescript
+// ❌ Anti-pattern — modifies process.env directly with no cleanup
+it('should enable debug mode when env is set', () => {
+  process.env.DEBUG = 'true'
+  expect(isDebugEnabled()).toBe(true)
+  // DEBUG remains 'true' for all tests running after this!
+})
+
+// ✅ Better — snapshot and restore in beforeEach/afterEach
+describe('isDebugEnabled', () => {
+  const originalEnv = process.env
+
+  beforeEach(() => {
+    process.env = { ...originalEnv }
+  })
+
+  afterEach(() => {
+    process.env = originalEnv
+  })
+
+  it('should enable debug mode when env is set', () => {
+    process.env.DEBUG = 'true'
+    expect(isDebugEnabled()).toBe(true)
+  })
+})
+```
+
+---
+
 ## Quick Checklist
 
 Before submitting test code, verify none of these anti-patterns are present:
@@ -287,7 +408,12 @@ Before submitting test code, verify none of these anti-patterns are present:
 □ Each it() block has exactly one Act phase
 □ No copy-pasted tests that should be it.each
 □ No shared mutable state between tests
-□ Every it() block has at least one expect()
+□ Every it() block has at least one expect() (no dummy coverage or assertion-free tests)
+□ All async assertions on promises have `await expect(...).rejects` (no floating promises)
+□ Assertions verify specific values, not just `.toBeDefined()` or `.toBeTruthy()`
+□ Object assertions use `.toMatchObject()` or `expect.objectContaining()` for dynamic fields
+□ Error tests assert Custom Error classes or Error Codes, NOT brittle wording strings
+□ Any mutations to `process.env` or global state are restored in afterEach
 □ No large snapshot assertions (use field-level assertions instead)
 □ Negative, error, and edge cases are covered — not just happy path
 ```
