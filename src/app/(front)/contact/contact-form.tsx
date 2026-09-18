@@ -62,18 +62,12 @@ export default function ContactForm() {
     },
   })
 
-  async function onSubmit(
-    data: ContactFormValues,
-    event?: React.BaseSyntheticEvent
-  ) {
+  async function onSubmit(data: ContactFormValues, website: string) {
     if (status === "pending") return
     setStatus("pending")
     setMessage("")
 
     try {
-      const website =
-        new FormData(event?.currentTarget as HTMLFormElement).get("website")?.toString() ??
-        ""
       const result = await submitContactForm({ ...data, website })
       if (result.ok) {
         setStatus("success")
@@ -107,7 +101,15 @@ export default function ContactForm() {
       </p>
 
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={(event) => {
+          // อ่าน honeypot แบบ sync ตรงนี้เท่านั้น — ห้ามอ่านใน onSubmit
+          // เพราะ zodResolver เป็น async ทำให้ event.currentTarget เป็น null
+          // ตอน handleSubmit เรียก callback กลับมา (ได้ FormData(null) -> throw
+          // ทุกครั้งที่ฟอร์ม valid, E2E จับได้ว่าไม่มี POST ออกจาก browser เลย)
+          const website =
+            new FormData(event.currentTarget).get("website")?.toString() ?? ""
+          return form.handleSubmit((data) => onSubmit(data, website))(event)
+        }}
         noValidate
         data-testid="contact-form"
         className="mt-6"
